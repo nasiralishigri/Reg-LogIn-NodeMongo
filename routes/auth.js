@@ -6,6 +6,12 @@ const _ = require('lodash');
 const { User } = require('../models/user');
 const express = require('express');
 const router = express.Router();
+
+const bodyParser = require('body-parser');
+ 
+router.use(bodyParser.urlencoded({ extended: false }));
+
+router.use(bodyParser.json());
  
 router.post('/', async (req, res) => {
 
@@ -32,7 +38,8 @@ router.post('/', async (req, res) => {
 
     // const token = jwt.sign({_id:user._id}, 'PrivateKey');
     const token = jwt.sign({ _id: user._id },'PrivateKey');
-    res.send(token);
+    res.header('x-auth-token',token).send(_.pick(user,["id","name",'username' ,"email",]));
+    // res.send(token);
 });
 
 function Validate(req){
@@ -40,10 +47,7 @@ function Validate(req){
         email: Joi.string().min(5).max(150).required().email(),
         password: Joi.string().min(3).max(100).required()
     };
-
     return Joi.validate(req,schema);
-
 }
-
 
 module.exports = router;
